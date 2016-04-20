@@ -6,20 +6,26 @@ import sys
 from sys import getsizeof
 import numpy as np
 import argparse
+from os.path import basename, dirname
 
 def getKaryotype(fname):
-    """ zwraca słownik np: {'chr13': 115169878, ... } """
+    """returns dictionary e.g.: {'chr13': 115169878, ... } """
     data = [i.strip().split() for i in open(fname) if i[:3] == 'chr']
     hs = {}
     for i in data:
         hs[i[6]] = int(i[5])
     return hs
 
-def getSegmentsByChr(data, chromosome, karyotype, resolution, ignoreLong=False, prefix='', interactionLengthCutoff=1.8e7):
-    signal = np.zeros(karyotype[chromosome]/resolution, dtype=np.uint16)
+def getSegmentsByChr(data, chromosmee, karyotype, resolution=10000, ignoreLong=False, prefix='', interactionLengthCutoff=1.8e7):
+
+    directory = dirname(data)
+    infname = basename(data)
+
+    data = [ i.strip().split() for i in open(data) ]
+    signal = np.zeros(karyotype[chromosmee]/resolution, dtype=np.uint16)
     data2 = []
     for i in data:
-        if i[0] == chromosome and i[3] == chromosome:
+        if i[0] == chromosmee and i[3] == chromosmee:
             s = (int(i[1]), int(i[5]), int(i[6]))
             data2.append(s)
 
@@ -31,7 +37,7 @@ def getSegmentsByChr(data, chromosome, karyotype, resolution, ignoreLong=False, 
     for k, i in enumerate(data2):
         n = i[2]
         interactionLength = i[1]-i[0]+1
-        sys.stdout.write( '\r{:.2f} %, Max: {}'.format(k/N*100, maximum) )
+        sys.stdout.write( '\r{:.2f} %, Max signal value: {}'.format(k/N*100, maximum) )
         sys.stdout.flush()
 
         # Filtrowanie po długości interackcji
@@ -52,26 +58,31 @@ def getSegmentsByChr(data, chromosome, karyotype, resolution, ignoreLong=False, 
             if signal[j] > maximum:
                 maximum = signal[j]
                 if maximum > 62258:
-                    print "\n[ \033[1;33mWARN\033[1;m ] poziom sygnału przekroczył wartość 95% pojemności typu np.uint16! Dalsze zwiększenie może prowadzić do błędów!"
+                    print "\n[ \033[1;33mWARN\033[1;m ] level of maximal signal value exceded 95% of maximal np.uint16 capacity! There is a risk of overflow!"
                     warned = True
-    outFname = '{}.{}.signal.np.int16'.format(prefix,chromosome)
+    
+    if prefix != '': outFname = '{}.{}.signal.np.uint16'.format(prefix,chromosmee)
+    else: outFname = '{}.signal.np.uint16'.format(chromosmee)
+    
+    if directory != '': outPath = "{}/{}".format(directory, outFname)
+    else: outPath = "{}".format(outFname)
+    
     print "\nSaving file {}...".format(outFname)
-    f = open(outFname, 'wb')
+    f = open(outPath, 'wb')
     signal.tofile(f)
 
 def main():
-    parser = argparse.ArgumentParser(description='Zapisuje sygnal chapetowy w postaci pliku binarnego numpy array np.int16')
-    parser.add_argument('karyotyp', help='karyotyp w formacie analogicznym do circosa')
-    parser.add_argument('dane', help='plik z danymi w formacie bed (klastry ChIA-PET)')
-    parser.add_argument('chromosom', help='chromosom. Np chr22')
-    parser.add_argument('-p', '--prefix', default='', help='prefix zapisu plik. Może być użyty np do wskazania linii komórkowej. Przykładowa nazwa pliku z prefixem: GM.chr14.signal.np.int16')
-    parser.add_argument('-r', '--resolution', type=int, default=10000, help='Im mniej tym lepiej. Rozdzieloczosc. 1 oznacza ze PET-Count jest zliczany dla kazdej pozycji w genomie. Może się liczyć ponad dobę! Rozsądna wartości to: 5-100')
-    parser.add_argument('-i', '--ignoreLong', action='store_true', help='Ignore interactions longer than 1.8e7.')
+    parser = argparse.ArgumentParser(description='Saved ChIA-PET signal into numpy uint16 one-dimension binary array format in any desired resolution.')
+    parser.add_argument('karyotype', help='karyotype in Circos format')
+    parser.add_argument('data', help='file with data (ChIA-PET clusters)')
+    parser.add_argument('chromosme', help='chromosme. e.g. chr22')
+    parser.add_argument('-p', '--prefix', default='', help='prefix of output file name. e.g.: GM.chr14.signal.np.uint16 (\'GM\' is prefix here)' )
+    parser.add_argument('-r', '--resolution', type=int, default=10000, help='The lower, the better. Resolution equal 1 mean that PET-Count is counted for each position in genome. It may last over 24h! Resonable values ar between 5 and 10000')
+    parser.add_argument('-i', '--ignoreLong', action='store_true', help='Ignore interactions longer than 18 Mbases.')
     args = parser.parse_args()
 
-    karyotype = getKaryotype(args.karyotyp)
-    data = [ i.strip().split() for i in open(args.dane) ]
-    S = getSegmentsByChr(data, args.chromosom, karyotype, args.resolution, args.ignoreLong,  args.prefix ) 
+    karyotype = getKaryotype(args.karyotype)
+    S = getSegmentsByChr(args.data, args.chromosme, karyotype, args.resolution, args.ignoreLong,  args.prefix ) 
     
    
 if __name__ == '__main__':
