@@ -101,8 +101,8 @@ def main():
     parser.add_argument('karyotype', help='karyotype in Circos format')
     parser.add_argument('signalFile', help="ChIA-PET clusters signal in  np.uint16 binary format")
     parser.add_argument('chromosome', help='chromosme. e.g. chr22')
-    parser.add_argument('-c1', '--cutoff1', type=int, default=3e5,  help='minimal segment size')
-    parser.add_argument('-c2', '--cutoff2', type=int, default=9e5,  help='closest segment shouldn\'t be closer than this value')
+    parser.add_argument('-c1', '--cutoff1', type=int, default=3e5,  help='minimal segment size. Default: 3e5 bp')
+    parser.add_argument('-c2', '--cutoff2', type=int, default=9e5,  help='closest segment shouldn\'t be closer than this value. Default: 9e5 bp')
     args = parser.parse_args()
 
     performSegmentation(args.signalFile, args.karyotype, args.chromosome, CUTOFF=args.cutoff1, CUTOFF2=args.cutoff2)
