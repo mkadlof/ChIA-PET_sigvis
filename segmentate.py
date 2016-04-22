@@ -52,10 +52,17 @@ def performSegmentation(signal, karyotype, chromosome, CUTOFF=3e5, CUTOFF2=9e5):
     if signal[-1] == 0:
         end = len(signal)
         segmentsCoords.append([begin, end])
+    
+    if len(segmentsCoords) == 0:
+        print "[ \033[1;33mWARN\033[1;m ] There is no segments in {}!".format(f.name)
+        sys.exit(1)
 
     # usuniecie poczatku i konca
-    del segmentsCoords[0]
-    del segmentsCoords[-1]
+    if len(segmentsCoords) == 1:
+        del segmentsCoords[0]
+    else:
+        del segmentsCoords[0]
+        del segmentsCoords[-1]
 
     # przeskalowanie
     n = signal.size

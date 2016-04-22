@@ -75,14 +75,15 @@ def main():
     parser = argparse.ArgumentParser(description='Saved ChIA-PET signal into numpy uint16 one-dimension binary array format in any desired resolution.')
     parser.add_argument('karyotype', help='karyotype in Circos format')
     parser.add_argument('data', help='file with data (ChIA-PET clusters)')
-    parser.add_argument('chromosme', help='chromosme. e.g. chr22')
+    parser.add_argument('chromosome', help='chromosme. e.g. chr22')
     parser.add_argument('-p', '--prefix', default='', help='prefix of output file name. e.g.: GM.chr14.signal.np.uint16 (\'GM\' is prefix here)' )
     parser.add_argument('-r', '--resolution', type=int, default=10000, help='The lower, the better. Resolution equal 1 mean that PET-Count is counted for each position in genome. It may last over 24h! Resonable values ar between 5 and 10000')
     parser.add_argument('-i', '--ignoreLong', action='store_true', help='Ignore interactions longer than 18 Mbases.')
     args = parser.parse_args()
 
     karyotype = getKaryotype(args.karyotype)
-    S = getSegmentsByChr(args.data, args.chromosme, karyotype, args.resolution, args.ignoreLong,  args.prefix ) 
+    print "Processing {}...".format(args.chromosome)
+    S = getSegmentsByChr(args.data, args.chromosome, karyotype, args.resolution, args.ignoreLong,  args.prefix ) 
     
    
 if __name__ == '__main__':
