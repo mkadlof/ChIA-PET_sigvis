@@ -1,2 +1,2 @@
 # ChIA-PET_sigvis
-microtool for ChIA-PET signal visualization
+Micro toolbox for dealing with ChIA-PET signal processing.

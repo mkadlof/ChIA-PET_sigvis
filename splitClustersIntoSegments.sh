@@ -10,7 +10,7 @@ fi
 SELF_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"	# DO NOT EDIT
 
 ################################### EDITABLE PART ############################################
-PET_COUNT_CUTOFF=4			              # It is the smallest value for which the interaction will be treated as a cluster, not a singleton
+PET_COUNT_CUTOFF=4			              # It is the smallest value for which the interaction will be considered as a cluster, not a singleton
 KARYOTYPE="$SELF_PATH/karyotype.hg19.txt" # File with karyotype in Circos format
 CELL_LINE="MyExperiment"				  # Prefix in some files. Can not be empty!
 RESOLUTION=10000				          # Signal file resolution. Lower the better 100-10000 should be ok. Lower values are time consuming. Larger may couse rounding errors.
