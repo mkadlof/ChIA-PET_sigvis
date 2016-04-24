@@ -1,20 +1,20 @@
 #!/bin/bash
 set -e						
 
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 DataFile"
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 ClustersFile SingletonsFile"
 	echo "It is better to move your data to separet folder before running scripts. It produce a lot of mid files."
 	exit 1
 fi
 
 SELF_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"	# DO NOT EDIT
 
-################################### EDITABLE PART ############################################
+################################### EDITABLE PART ###########################################
 PET_COUNT_CUTOFF=4			              # It is the smallest value for which the interaction will be considered as a cluster, not a singleton
 KARYOTYPE="$SELF_PATH/karyotype.hg19.txt" # File with karyotype in Circos format
 CELL_LINE="MyExperiment"				  # Prefix in some files. Can not be empty!
 RESOLUTION=10000				          # Signal file resolution. Lower the better 100-10000 should be ok. Lower values are time consuming. Larger may couse rounding errors.
-##############################################################################################
+#############################################################################################
 
 # Enviroment vars. Do not edit!
 CURRENT_PATH=`pwd`
@@ -25,12 +25,15 @@ INPUT_PATH=$1
 INPUT_FILENAME=$(basename "$INPUT_PATH")
 INPUT_DIR=$(dirname "$INPUT_PATH")
 FILENAME_1=PET$PET_COUNT_CUTOFF.$INPUT_FILENAME
+SINGLETONS_FILE="singletons.PET1-$((PET_COUNT_CUTOFF-1)).$INPUT_FILENAME"
+cat $2 > $SINGLETONS_FILE 
 
 cd $INPUT_DIR
 
 # Trim according to PET-Count
 echo -n "Trimming according to PET-Count $PET_COUNT_CUTOFF... "
-awk ' $7 >= 4 ' $INPUT_FILENAME > $FILENAME_1
+awk " \$7 >= $PET_COUNT_CUTOFF " $INPUT_FILENAME > $FILENAME_1
+awk " \$7 < $PET_COUNT_CUTOFF " $INPUT_FILENAME >> $SINGLETONS_FILE
 echo "OK"
 
 ORIGINAL_INTERACTIONS_NUMBER=$(wc -l $INPUT_FILENAME | cut -f1 -d ' ')

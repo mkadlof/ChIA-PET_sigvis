@@ -16,7 +16,7 @@ def getKaryotype(fname):
         hs[i[6]] = int(i[5])
     return hs
 
-def getSegmentsByChr(data, chromosmee, karyotype, resolution=10000, ignoreLong=False, prefix='', interactionLengthCutoff=1.8e7):
+def getSegmentsByChr(data, chromosmee, karyotype, resolution=10000, ignoreLong=False, prefix='', interactionLengthCutoff=4e5):
 
     directory = dirname(data)
     infname = basename(data)
