@@ -15,14 +15,14 @@ def getKaryotype(fname):
         hs[i[6]] = int(i[5])
     return hs
 
-def drawSignals(karyotype, chromosomee, signalFiles, segments):
+def drawSignals(karyotype, chromosome, signalFiles, segments):
     for f in signalFiles:
         y = np.fromfile(f, dtype=np.uint16)
         if y.size > 1e6:
             every = int(y.size//1e6)
             print "[ \033[1;33mWARN\033[1;m ] Your data from {} are very big so they were probed every {:d} point so they could fit in circa 1 000 000 points. Sorry :(".format(f.name, every)
             y = y[0::every]
-        x = np.linspace(0,karyotype[chromosomee],len(y))
+        x = np.linspace(0,karyotype[chromosome],len(y))
         print "Plotting {}".format(f.name)
         bla = plt.plot(x,y, '-', label=f.name)
         color = bla[-1].get_color()
@@ -30,12 +30,12 @@ def drawSignals(karyotype, chromosomee, signalFiles, segments):
 
     if segments:
         tmp = [i.strip().split() for i in segments ]
-        segByPrzemek = [int(i[1]) for i in tmp if i[0] == chromosomee]
+        segByPrzemek = [int(i[1]) for i in tmp if i[0] == chromosome]
         plt.plot(segByPrzemek,[0 for i in xrange(len(segByPrzemek))],'d',color='yellow',linestyle="none" )
 
     plt.legend()
     plt.grid()
-    plt.title("ChIA-PET signal for {}".format(chromosomee))
+    plt.title("ChIA-PET signal for {}".format(chromosome))
     plt.show()
     
 def main():
